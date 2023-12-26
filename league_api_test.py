@@ -1,3 +1,6 @@
+# DEPRECIATED FILE
+# NEW MAIN FILE WILL BE /main.py
+
 from riotwatcher import LolWatcher, ApiError
 import pandas as pd
 import requests

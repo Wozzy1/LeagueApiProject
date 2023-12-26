@@ -27,3 +27,11 @@ class GameDataGenerator():
         last_match = player_matches[0]
         Watcher.match.by_id(region, last_match)
         return 
+    
+class Player():
+    def __init__(self, region, name) -> None:
+        # values are hardcoded for now
+        self.region = region
+        self.name = name
+
+    
