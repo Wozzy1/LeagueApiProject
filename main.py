@@ -2,7 +2,7 @@ from riotwatcher import LolWatcher, ApiError
 import pandas as pd
 import requests
 import json
-api_key = "RGAPI-9b962e27-e9bc-4bfb-a8c9-4fea51739ffe"
+api_key = "RGAPI-c6670e3d-3770-49cd-ae8e-293c3f154f31"
 
 
 class GameDataGenerator():
@@ -60,23 +60,23 @@ class GameDataGenerator():
             for part_num in range(len(match_detail['info']['participants'])):
                 #print(match_detail['info']['participants'][part_num]['summonerName'])
                 if match_detail['info']['participants'][part_num]['summonerName'] == self.Player.name:
-                    
-                    #playernum = match_detail['info']['participants']['summonerName'].index('WZ802')
                     part_row = {}
                     part_row['Win'] = match_detail['info']['participants'][part_num]['win']
-                    part_row['championPlayed'] = match_detail['info']['participants'][part_num]['championName']
+                    # part_row['championPlayed'] = match_detail['info']['participants'][part_num]['championName']
+                    # part_row['championId'] = match_detail['info']['participants'][part_num]['championId']
                     part_row['gameLength (sec)'] = match_detail['info']['participants'][part_num]['timePlayed']
                     part_row['kills'] = match_detail['info']['participants'][part_num]['kills']
                     part_row['deaths'] = match_detail['info']['participants'][part_num]['deaths']
                     part_row['assists'] = match_detail['info']['participants'][part_num]['assists']
                     part_row['goldEarned'] = match_detail['info']['participants'][part_num]['goldEarned']
-                    part_row['CS'] = match_detail['info']['participants'][part_num]['totalMinionsKilled']
+                    # part_row['CS'] = match_detail['info']['participants'][part_num]['totalMinionsKilled'] # FIX THE COMPUTATION OF TOTAL CS
                     part_row['dmgToChamps'] = match_detail['info']['participants'][part_num]['totalDamageDealtToChampions']
                     games_info.append(part_row)
         df = pd.DataFrame(games_info)
-        return(print(df))
+        # return(print(df))
+        return df
 
-
+   
     
 class PlayerInfo():
     def __init__(self, region, name) -> None:

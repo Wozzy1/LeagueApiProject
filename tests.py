@@ -2,7 +2,7 @@ from riotwatcher import LolWatcher, ApiError
 import pandas as pd
 import requests
 import json
-api_key = "RGAPI-9b962e27-e9bc-4bfb-a8c9-4fea51739ffe"
+api_key = "RGAPI-c6670e3d-3770-49cd-ae8e-293c3f154f31"
 
 from main import PlayerInfo, GameDataGenerator
 
@@ -21,7 +21,8 @@ def main():
     # f.close()
 
     # program.getPlayerOneGameStats(0)
-    program.getPlayerMultipleGameStats(list)
+    df = program.getPlayerMultipleGameStats(list)
+    print(df)
 
 if __name__ == '__main__':
     main()
