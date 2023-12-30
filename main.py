@@ -2,14 +2,19 @@ from riotwatcher import LolWatcher, ApiError
 import pandas as pd
 import requests
 import json
-api_key = "RGAPI-c6670e3d-3770-49cd-ae8e-293c3f154f31"
+api_key = "RGAPI-08576416-f07a-44ac-8e9c-777919706474"
 
 
 class GameDataGenerator():
 
+    # constructor with a player
     def __init__(self, _api_key, name) -> None:
         self.Watcher = LolWatcher(_api_key)
         self.Player = PlayerInfo("na1", name)
+
+    # constructor without a player
+    def __init__(self, _api_key) -> None:
+        self.Watcher = LolWatcher(_api_key)
 
 
     def getPlayerMatches(self) -> list:        
@@ -52,17 +57,19 @@ class GameDataGenerator():
 
         return(print(df))
     
-    def getPlayerMultipleGameStats(self, matches) -> str:
+    def getMultipleGameStatsByPlayer(self, matches) -> pd.DataFrame:
         games_info = []
         for game_num in range(len(matches)):
             last_match = matches[game_num]
             match_detail = self.Watcher.match.by_id(self.Player.region, last_match) # doesnt need error catching becasue is done in a controlled for loop
+            
+            # simplify to for in range 10?
             for part_num in range(len(match_detail['info']['participants'])):
                 #print(match_detail['info']['participants'][part_num]['summonerName'])
                 if match_detail['info']['participants'][part_num]['summonerName'] == self.Player.name:
                     part_row = {}
                     part_row['Win'] = match_detail['info']['participants'][part_num]['win']
-                    # part_row['championPlayed'] = match_detail['info']['participants'][part_num]['championName']
+                    part_row['championPlayed'] = match_detail['info']['participants'][part_num]['championName']
                     # part_row['championId'] = match_detail['info']['participants'][part_num]['championId']
                     part_row['gameLength (sec)'] = match_detail['info']['participants'][part_num]['timePlayed']
                     part_row['kills'] = match_detail['info']['participants'][part_num]['kills']
@@ -76,7 +83,30 @@ class GameDataGenerator():
         # return(print(df))
         return df
 
-   
+    """
+    For this method, I want to get data in a different fashion. I want to look at the game in a broader sense rather 
+    than focusing on one player. Some conditions that are strongly associated with winning are:
+    - gold difference
+    - avg champion levels
+    - total exp
+    - minions killed
+    - jungle monsters killed
+    - dragons killed
+        - elder dragon
+    - rift heralds taken
+    - barons
+    - towers destroyed
+    
+    """
+    def getMultipleGameStatsById(self, matchIdList):
+        games_info = []
+        for matchId in matchIdList:
+            match_detail = self.Watcher.match.by_id("na1", matchId)
+
+            
+
+        return
+
     
 class PlayerInfo():
     def __init__(self, region, name) -> None:
