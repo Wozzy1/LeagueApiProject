@@ -63,10 +63,11 @@ class GameDataGenerator():
             match_detail = self.Watcher.match.by_id(self.Player.region, last_match) # doesnt need error catching becasue is done in a controlled for loop
             
             # simplify to for in range 10?
-            for participant_num in range(len(match_detail['info']['participants'])):
+            for participant_num in range(1, len(match_detail['info']['participants']) + 1):
                 #print(match_detail['info']['participants'][participant_num]['summonerName'])
                 if match_detail['info']['participants'][participant_num]['summonerName'] == self.Player.name:
                     participant_row = {}
+                    participant_row['gameId'] = match_detail['metadata']['matchId']
                     participant_row['Win'] = match_detail['info']['participants'][participant_num]['win']
                     participant_row['championPlayed'] = match_detail['info']['participants'][participant_num]['championName']
                     # participant_row['championId'] = match_detail['info']['participants'][participant_num]['championId']
@@ -85,7 +86,7 @@ class GameDataGenerator():
     """
     For this method, I want to get data in a different fashion. I want to look at the game in a broader sense rather 
     than focusing on one player. Some conditions that are strongly associated with winning are:
-    - avg champion levels (float)
+    - avg champion levels (float) X
     - total exp (int)
     - minions killed (int)
     - jungle monsters killed (int)
@@ -96,20 +97,24 @@ class GameDataGenerator():
         - mid vs mid
         - bot vs bot
         - sup vs sup
-    - dragons killed (int)
-        - elder dragon (int)
+    - dragons killed (int) X
+        - elder dragon (int) no datapoint
+    - first rift
     - rift heralds taken (int)
-    - barons (int)
-    - towers destroyed (int)
-    - blue team win (boolean)
-    - team total KDA
+    - first baron
+    - barons (int) X
+    - first tower X
+    - towers destroyed (int) X
+    - blue team win (boolean) X
+    - blue team first blood (boolean) X
+    - team total KDA X
         - Kills
         - Deaths
         - Assists
-    - vision score
-    - pink wards
-    - wards placed
-    - wards killed
+    - vision score X
+    - pink wards X
+    - wards placed X
+    - wards killed X
     """
     def getMultipleGameStatsById(self, matchIdList):
         games_info = []
@@ -118,16 +123,83 @@ class GameDataGenerator():
             game_info = {}
             game_info['gameId'] = matchId
             game_info['blueTeamWin'] = match_detail['info']['teams'][0]['win']
+
+            game_info['blueFirstBlood'] = match_detail['info']['teams'][0]['objectives']['champion']['first']   
+            
+            kills, deaths, assists, level, goldEarned = 0, 0, 0, 0, 0
+            visionScore, pinkWards, wardsPlaced, wardsKilled = 0, 0, 0, 0
+            for player in range(0, 5):
+                kills += match_detail['info']['participants'][player]['kills']
+                deaths += match_detail['info']['participants'][player]['deaths']
+                assists += match_detail['info']['participants'][player]['assists']
+                visionScore += match_detail['info']['participants'][player]['visionScore']
+                pinkWards += match_detail['info']['participants'][player]['visionWardsBoughtInGame']
+                wardsPlaced += match_detail['info']['participants'][player]['wardsPlaced']
+                wardsKilled += match_detail['info']['participants'][player]['wardsKilled']
+                level += match_detail['info']['participants'][player]['champLevel']
+                goldEarned += match_detail['info']['participants'][player]['goldEarned']
+
+            game_info['blueTeamKills'] = kills
+            game_info['blueTeamDeaths'] = deaths
+            game_info['blueTeamAssists'] = assists
+            game_info['blueVisionScore'] = visionScore
+            game_info['bluePinkWards'] = pinkWards
+            game_info['blueWardsPlaced'] = wardsPlaced
+            game_info['blueWardsKilled'] = wardsKilled
+            game_info['blueAverageLevel'] = level / 5.0
+            game_info['blueAverageGold'] = goldEarned / 5.0
+
+            kills, deaths, assists, level, goldEarned = 0, 0, 0, 0, 0
+            visionScore, pinkWards, wardsPlaced, wardsKilled = 0, 0, 0, 0
+            for player in range(5, 10):
+                kills += match_detail['info']['participants'][player]['kills']
+                deaths += match_detail['info']['participants'][player]['deaths']
+                assists += match_detail['info']['participants'][player]['assists']
+                visionScore += match_detail['info']['participants'][player]['visionScore']
+                pinkWards += match_detail['info']['participants'][player]['visionWardsBoughtInGame']
+                wardsPlaced += match_detail['info']['participants'][player]['wardsPlaced']
+                wardsKilled += match_detail['info']['participants'][player]['wardsKilled']
+                level += match_detail['info']['participants'][player]['champLevel']
+                goldEarned += match_detail['info']['participants'][player]['goldEarned']
+
+            game_info['redTeamKills'] = kills
+            game_info['redTeamDeaths'] = deaths
+            game_info['redTeamAssists'] = assists
+            game_info['redVisionScore'] = visionScore
+            game_info['redPinkWards'] = pinkWards
+            game_info['redWardsPlaced'] = wardsPlaced
+            game_info['redWardsKilled'] = wardsKilled
+            game_info['redAverageLevel'] = level / 5.0
+            game_info['redAverageGold'] = goldEarned / 5.0
+
+            game_info['blueFirstDragon'] = match_detail['info']['teams'][0]['objectives']['dragon']['first']
+            game_info['blueDragonsKilled'] = match_detail['info']['teams'][0]['objectives']['dragon']['kills']
+            game_info['redDragonsKilled'] = match_detail['info']['teams'][1]['objectives']['dragon']['kills']
+
+            game_info['blueFirstRiftHerald'] = match_detail['info']['teams'][0]['objectives']['riftHerald']['first']
+            game_info['blueRiftHeraldsKilled'] = match_detail['info']['teams'][0]['objectives']['riftHerald']['kills']
+            game_info['redRiftHeraldsKilled'] = match_detail['info']['teams'][1]['objectives']['riftHerald']['kills']
+
+            game_info['blueFirstBaron'] = match_detail['info']['teams'][0]['objectives']['baron']['first']
+            game_info['blueBaronsKilled'] = match_detail['info']['teams'][0]['objectives']['baron']['kills']
+            game_info['redBaronsKilled'] = match_detail['info']['teams'][1]['objectives']['baron']['kills']
+
+            game_info['blueFirstTower'] = match_detail['info']['teams'][0]['objectives']['tower']['first']
+            game_info['blueTowersDestroyed'] = match_detail['info']['teams'][0]['objectives']['tower']['kills']
+            game_info['redTowersDestroyed'] = match_detail['info']['teams'][1]['objectives']['tower']['kills']
+
+
+
             games_info.append(game_info)
         df = pd.DataFrame(games_info)
             
 
         return df
+        
 
     
 class PlayerInfo():
     def __init__(self, region, name) -> None:
-        # values are hardcoded for now
         self.region = region
         self.name = name
 
